@@ -63,6 +63,19 @@ class Android8FixComposeView @JvmOverloads constructor(
         super.onProvideAutofillStructure(structure, flags)
     }
 
+    /**
+     * Set the Jetpack Compose UI content for this view.
+     * Initial composition will occur when the view becomes attached to a window or when
+     * [createComposition] is called, whichever comes first.
+     */
+    fun setContent(content: @Composable () -> Unit) {
+        shouldCreateCompositionOnAttachedToWindow = true
+        this.content.value = content
+        if (isAttachedToWindow) {
+            createComposition()
+        }
+    }
+
     private fun disableAssist() {
         try {
             val method = this::class.java.getMethod("setAssistBlocked", Boolean::class.java)
@@ -81,16 +94,4 @@ class Android8FixComposeView @JvmOverloads constructor(
 
     private fun isOreo(): Boolean = Build.VERSION.SDK_INT == 26
 
-    /**
-     * Set the Jetpack Compose UI content for this view.
-     * Initial composition will occur when the view becomes attached to a window or when
-     * [createComposition] is called, whichever comes first.
-     */
-    fun setContent(content: @Composable () -> Unit) {
-        shouldCreateCompositionOnAttachedToWindow = true
-        this.content.value = content
-        if (isAttachedToWindow) {
-            createComposition()
-        }
-    }
 }
