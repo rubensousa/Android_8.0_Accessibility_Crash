@@ -1,11 +1,10 @@
 package com.rubensousa.android8composecrash
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.SurfaceView
+import android.view.View
+import android.view.autofill.AutofillManager
+import android.widget.EditText
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,22 +19,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rubensousa.android8composecrash.ui.theme.Android8ComposeCrashTheme
 
 class MainActivity : ComponentActivity() {
 
     private val reproduce = true
+    private lateinit var autoFillManager: AutofillManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        autoFillManager = getSystemService(AutofillManager::class.java)
+
         if (reproduce) {
             setContentView(R.layout.activity_layout)
             val composeView = findViewById<ComposeView>(R.id.composeView)
@@ -55,36 +53,37 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
+                        .padding(24.dp)
                 ) {
-                    val focusRequester = remember { FocusRequester() }
-                    var backgroundState by remember { mutableStateOf(Color.Gray) }
                     val context = LocalContext.current
-                    val view = remember { SurfaceView(context) }
-                    view.setBackgroundColor(backgroundState.toArgb())
-
-                    AndroidView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { focusState ->
-                                backgroundState = if (focusState.isFocused) {
-                                    Color.Green
-                                } else {
-                                    Color.Gray
-                                }
-                            }
-                            .focusable(),
-                        factory = { view },
-                    )
+                    var showField by remember { mutableStateOf(true) }
+                    val view = remember {
+                        EditText(context).apply {
+                            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+                            setAutofillHints(View.AUTOFILL_HINT_NAME)
+                        }
+                    }
+                    if (showField) {
+                        AndroidView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center),
+                            update = {
+                                autoFillManager.requestAutofill(view)
+                            },
+                            factory = { view },
+                        )
+                    }
 
                     Button(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .align(Alignment.BottomCenter),
                         onClick = {
-                            focusRequester.requestFocus()
+                            showField = !showField
                         }
                     ) {
-                        Text(text = "Send focus to ComposeView")
+                        Text(text = "Show/hide TextField")
                     }
                 }
             }
