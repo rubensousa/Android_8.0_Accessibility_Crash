@@ -22,6 +22,7 @@ class Android8FixComposeView @JvmOverloads constructor(
 
     init {
         if (isOreo()) {
+            importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
             disableAssist()
         }
     }
