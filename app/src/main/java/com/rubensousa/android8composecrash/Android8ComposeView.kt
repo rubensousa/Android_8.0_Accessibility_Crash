@@ -65,7 +65,8 @@ class Android8FixComposeView @JvmOverloads constructor(
 
     private fun disableAssist() {
         try {
-            this::class.java.methods.find { it.name == "setAssistBlocked" }?.invoke(this, true)
+            val method = this::class.java.getMethod("setAssistBlocked", Boolean::class.java)
+            method.invoke(this, true)
         } catch (error: Throwable) {
             // Nothing we can do
         }
@@ -75,7 +76,7 @@ class Android8FixComposeView @JvmOverloads constructor(
      * Android 8 doesn't seem to support this correctly for Compose accessibility notes, so turn it off
      */
     private fun shouldDisableVirtualStructure(): Boolean {
-        return isOreo()
+        return false
     }
 
     private fun isOreo(): Boolean = Build.VERSION.SDK_INT == 26
