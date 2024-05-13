@@ -2,6 +2,8 @@
 
 Google ticket raised by me: https://issuetracker.google.com/issues/251152083
 
+References: https://developer.android.com/guide/topics/text/autofill-optimize#autofill-crash
+
 ## Reproduction steps
 
 1. Run the app in this repo in an Android 8.0 device
@@ -80,3 +82,4 @@ All of the above create their own `AbstractComposeView` so developers can't modi
 ## Documentation
 
 - https://developer.android.com/training/articles/assistant
+- https://developer.android.com/guide/topics/text/autofill-optimize#autofill-crash
