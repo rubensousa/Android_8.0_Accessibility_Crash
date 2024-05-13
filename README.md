@@ -1,5 +1,7 @@
 # Android 8.0 Accessibility Crash in Compose
 
+Google ticket raised by me: https://issuetracker.google.com/issues/251152083
+
 ## Reproduction steps
 
 1. Run the app in this repo in an Android 8.0 device
@@ -42,15 +44,6 @@ at com.android.internal.os.Zygote$MethodAndArgsCaller.run(Zygote.java:240)
 at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:767)
 ```
 
-
-The workaround however doesn't work for the following Compose implementations:
-
-1. Dialogs
-2. Popups
-3. Modal Bottom Sheets
-
-All of the above create their own `AbstractComposeView` so developers can't modify its internal code to include the workaround
-
 ## Internal changes in Android 8.0
 
 Android 8.0 introduced the Assist and Autofill feature inside `View` and `ViewGroup`: https://github.com/AndroidSDKSources/android-sdk-sources-for-api-level-26/blob/master/android/view/View.java#L8079
@@ -69,6 +62,20 @@ if (!isLaidOut()) {
 
 - Compose could be adding a child self-reference when creating the accessibility nodes: a parent could be defining itself as its own children, which would cause an infinite traversal of the view tree.
 https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt;l=434;bpv=1
+
+
+## Temporary workaround
+
+This sample contains a `Android8FixComposeView` that disables the assist feature and accessibility calls for `dispatchProvideStructure`. 
+The impact of this change was not thoroughly tested by me, but at least solves this crash.
+
+The workaround however doesn't work for the following Compose implementations:
+
+1. Dialogs
+2. Popups
+3. Modal Bottom Sheets
+
+All of the above create their own `AbstractComposeView` so developers can't modify its internal code to include the workaround
 
 ## Documentation
 
