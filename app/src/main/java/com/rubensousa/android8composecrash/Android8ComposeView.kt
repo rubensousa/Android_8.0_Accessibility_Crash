@@ -89,7 +89,7 @@ class Android8FixComposeView @JvmOverloads constructor(
      * Android 8 doesn't seem to support this correctly for Compose accessibility notes, so turn it off
      */
     private fun shouldDisableVirtualStructure(): Boolean {
-        return false
+        return isOreo()
     }
 
     private fun isOreo(): Boolean = Build.VERSION.SDK_INT == 26
